@@ -26,3 +26,26 @@ By default the compose file exposes:
 - `GET /items/{item_id}` - Get an item by ID
 - `POST /items/` - Create a new item
 - `PUT /items/{item_id}` - Update an item
+
+## Database Migrations
+
+This project uses Alembic for database migrations. When you make changes to your models, follow these steps:
+
+1. Make your changes to the model files in `app/models/`
+2. Start the containers (if not already running):
+
+   ```bash
+   docker-compose up -d
+   ```
+
+3. Generate a new migration:
+
+   ```bash
+   docker compose exec blog-api alembic revision --autogenerate -m "Message"
+   ```
+
+4. Restart the containers to apply the migration:
+
+   ```bash
+   docker-compose restart
+   ```
