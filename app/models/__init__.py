@@ -2,4 +2,6 @@ from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
-__all__ = ["Base"]
+from .posts import Post
+
+__all__ = ["Base", "Post"]
