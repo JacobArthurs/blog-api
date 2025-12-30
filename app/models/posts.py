@@ -14,3 +14,4 @@ class Post(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     tags = relationship("Tag", secondary="post_tags", back_populates="posts", cascade="all, delete")
+    comments = relationship("Comment", back_populates="post", cascade="all, delete")
