@@ -20,7 +20,7 @@ def get_tags(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 
 @router.get("/{tag_id}", response_model=TagResponse)
 def get_tag(tag_id: int, db: Session = Depends(get_db)):
-    """Get a single tag by ID"""
+    """Get a tag by ID"""
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
@@ -28,7 +28,7 @@ def get_tag(tag_id: int, db: Session = Depends(get_db)):
 
 @router.get("/slug/{slug}", response_model=TagResponse)
 def get_tag_by_slug(slug: str, db: Session = Depends(get_db)):
-    """Get a single tag by slug"""
+    """Get a tag by slug"""
     tag = db.query(Tag).filter(Tag.slug == slug).first()
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
