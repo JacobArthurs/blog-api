@@ -5,7 +5,7 @@ from typing import List
 from ..db import get_db
 from ..models import Post, Tag
 from ..schemas import PostResponse, PostCreate, PostUpdate
-from ..utils import slugify, generate_unique_slug
+from ..utils import slugify, validate_unique_slug
 
 router = APIRouter(
     prefix="/posts",
@@ -38,10 +38,11 @@ def get_post_by_slug(slug: str, db: Session = Depends(get_db)):
 def create_post(post_data: PostCreate, db: Session = Depends(get_db)):
     """Create a post"""
     if post_data.slug:
-        slug = generate_unique_slug(post_data.slug, Post, db)
+        slug = post_data.slug
     else:
-        base_slug = slugify(post_data.title)
-        slug = generate_unique_slug(base_slug, Post, db)
+        slug = slugify(post_data.title)
+
+    validate_unique_slug(slug, Post, db)
 
     new_post = Post(
         title=post_data.title,
@@ -71,13 +72,14 @@ def update_post(post_id: int, post_data: PostUpdate, db: Session = Depends(get_d
     if post_data.title is not None:
         post.title = post_data.title
 
-    if post_data.slug is not None and post_data.slug != post.slug:
-        new_slug = generate_unique_slug(post_data.slug, Post, db)
-        post.slug = new_slug
+    if post_data.slug is not None:
+        if post_data.slug != post.slug:
+            validate_unique_slug(post_data.slug, Post, db)
+            post.slug = post_data.slug
     elif post_data.title is not None:
-        base_slug = slugify(post_data.title)
-        if base_slug != post.slug:
-            new_slug = generate_unique_slug(base_slug, Post, db)
+        new_slug = slugify(post_data.title)
+        if new_slug != post.slug:
+            validate_unique_slug(new_slug, Post, db)
             post.slug = new_slug
 
     if post_data.content is not None:

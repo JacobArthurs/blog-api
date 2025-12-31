@@ -1,6 +1,6 @@
 import re
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
-
 
 def slugify(text: str) -> str:
     """
@@ -19,24 +19,22 @@ def slugify(text: str) -> str:
     text = text.strip('-')
     return text
 
-
-def generate_unique_slug(base_slug: str, model, db: Session) -> str:
+def validate_unique_slug(slug: str, model, db: Session) -> None:
     """
-    Generate a unique slug by appending a number if the slug already exists.
+    Validate that a slug is unique for a given model.
 
     Args:
-        base_slug: The base slug to use
+        slug: The slug to validate
         model: The SQLAlchemy model to check against
         db: Database session
 
-    Returns:
-        A unique slug
+    Raises:
+        HTTPException: 400 error if slug already exists
     """
-    slug = base_slug
-    counter = 1
-
-    while db.query(model).filter(model.slug == slug).first():
-        slug = f"{base_slug}-{counter}"
-        counter += 1
-
-    return slug
+    existing = db.query(model).filter(model.slug == slug).first()
+    if existing:
+        model_name = model.__name__
+        raise HTTPException(
+            status_code=400,
+            detail=f"{model_name} with this slug already exists"
+        )

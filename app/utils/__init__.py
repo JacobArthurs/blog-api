@@ -1,6 +1,6 @@
-from .slugify import slugify, generate_unique_slug
+from .slugify import slugify, validate_unique_slug
 
 __all__ = [
     "slugify",
-    "generate_unique_slug",
+    "validate_unique_slug",
 ]
