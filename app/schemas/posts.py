@@ -1,6 +1,18 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import List
+from typing import List, Optional
+
+class PostCreate(BaseModel):
+    title: str
+    content: str
+    slug: Optional[str] = None
+    tag_ids: Optional[List[int]] = []
+
+class PostUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    slug: Optional[str] = None
+    tag_ids: Optional[List[int]] = None
 
 class TagInPost(BaseModel):
     id: int

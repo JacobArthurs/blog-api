@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session, joinedload
 from typing import List
 
 from ..db import get_db
-from ..models import Post
-from ..schemas import PostResponse
+from ..models import Post, Tag
+from ..schemas import PostResponse, PostCreate, PostUpdate
+from ..utils import slugify, generate_unique_slug
 
 router = APIRouter(
     prefix="/posts",
@@ -32,3 +33,78 @@ def get_post_by_slug(slug: str, db: Session = Depends(get_db)):
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
     return post
+
+@router.post("/", response_model=PostResponse, status_code=201)
+def create_post(post_data: PostCreate, db: Session = Depends(get_db)):
+    """Create a post"""
+    if post_data.slug:
+        slug = generate_unique_slug(post_data.slug, Post, db)
+    else:
+        base_slug = slugify(post_data.title)
+        slug = generate_unique_slug(base_slug, Post, db)
+
+    new_post = Post(
+        title=post_data.title,
+        slug=slug,
+        content=post_data.content
+    )
+
+    if post_data.tag_ids:
+        tags = db.query(Tag).filter(Tag.id.in_(post_data.tag_ids)).all()
+        if len(tags) != len(post_data.tag_ids):
+            raise HTTPException(status_code=404, detail="One or more tags not found")
+        new_post.tags = tags
+
+    db.add(new_post)
+    db.commit()
+    db.refresh(new_post)
+
+    return new_post
+
+@router.patch("/{post_id}", response_model=PostResponse)
+def update_post(post_id: int, post_data: PostUpdate, db: Session = Depends(get_db)):
+    """Update a post"""
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    if post_data.title is not None:
+        post.title = post_data.title
+
+    if post_data.slug is not None and post_data.slug != post.slug:
+        new_slug = generate_unique_slug(post_data.slug, Post, db)
+        post.slug = new_slug
+    elif post_data.title is not None:
+        base_slug = slugify(post_data.title)
+        if base_slug != post.slug:
+            new_slug = generate_unique_slug(base_slug, Post, db)
+            post.slug = new_slug
+
+    if post_data.content is not None:
+        post.content = post_data.content
+
+    if post_data.tag_ids is not None:
+        if post_data.tag_ids:
+            tags = db.query(Tag).filter(Tag.id.in_(post_data.tag_ids)).all()
+            if len(tags) != len(post_data.tag_ids):
+                raise HTTPException(status_code=404, detail="One or more tags not found")
+            post.tags = tags
+        else:
+            post.tags = []
+
+    db.commit()
+    db.refresh(post)
+
+    return post
+
+@router.delete("/{post_id}", status_code=204)
+def delete_post(post_id: int, db: Session = Depends(get_db)):
+    """Delete a post"""
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+
+    db.delete(post)
+    db.commit()
+
+    return None
