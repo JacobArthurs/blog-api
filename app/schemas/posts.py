@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import List, Optional
 
@@ -15,14 +15,15 @@ class PostUpdate(BaseModel):
     tag_ids: Optional[List[int]] = None
 
 class TagInPost(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     slug: str
 
-    class Config:
-        from_attributes = True
-
 class PostResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     title: str
     slug: str
@@ -31,6 +32,3 @@ class PostResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     tags: List[TagInPost] = []
-
-    class Config:
-        from_attributes = True

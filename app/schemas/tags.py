@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from typing import Optional
 
@@ -11,11 +11,10 @@ class TagUpdate(BaseModel):
     slug: Optional[str] = None
 
 class TagResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     name: str
     slug: str
     created_at: datetime
     updated_at: datetime
-
-    class Config:
-        from_attributes = True

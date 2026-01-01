@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr
 from datetime import datetime
 from typing import List, Optional
 
@@ -10,6 +10,8 @@ class CommentCreate(BaseModel):
     content: str
 
 class CommentResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     post_id: int
     parent_id: Optional[int]
@@ -18,8 +20,5 @@ class CommentResponse(BaseModel):
     content: str
     created_at: datetime
     replies: List["CommentResponse"] = []
-
-    class Config:
-        from_attributes = True
 
 CommentResponse.model_rebuild()
