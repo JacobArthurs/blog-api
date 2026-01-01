@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
+from app.utils.auth import verify_admin
+
 from ..db import get_db
 from ..models import Tag
 from ..schemas import TagResponse, TagCreate, TagUpdate
@@ -35,7 +37,7 @@ def get_tag_by_slug(slug: str, db: Session = Depends(get_db)):
     return tag
 
 @router.post("/", response_model=TagResponse, status_code=201)
-def create_tag(tag_data: TagCreate, db: Session = Depends(get_db)):
+def create_tag(tag_data: TagCreate, db: Session = Depends(get_db), _ = Depends(verify_admin)):
     """Create a tag"""
     if tag_data.slug:
         slug = tag_data.slug
@@ -56,7 +58,7 @@ def create_tag(tag_data: TagCreate, db: Session = Depends(get_db)):
     return new_tag
 
 @router.patch("/{tag_id}", response_model=TagResponse)
-def update_tag(tag_id: int, tag_data: TagUpdate, db: Session = Depends(get_db)):
+def update_tag(tag_id: int, tag_data: TagUpdate, db: Session = Depends(get_db), _ = Depends(verify_admin)):
     """Update a tag"""
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:
@@ -81,7 +83,7 @@ def update_tag(tag_id: int, tag_data: TagUpdate, db: Session = Depends(get_db)):
     return tag
 
 @router.delete("/{tag_id}", status_code=204)
-def delete_tag(tag_id: int, db: Session = Depends(get_db)):
+def delete_tag(tag_id: int, db: Session = Depends(get_db), _ = Depends(verify_admin)):
     """Delete a tag"""
     tag = db.query(Tag).filter(Tag.id == tag_id).first()
     if not tag:

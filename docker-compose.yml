@@ -24,9 +24,13 @@ services:
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USERNAME}:${POSTGRES_PASSWORD}@blog-db:5432/${POSTGRES_DB}
-      DATABASE_USER: ${POSTGRES_USERNAME}
-      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
-      DATABASE_NAME: ${POSTGRES_DB}
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: ${ALGORITHM}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      ADMIN_USERNAME: ${ADMIN_USERNAME}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH}
+      ISSUER: ${ISSUER}
+      AUDIENCE: ${AUDIENCE}
     volumes:
       - ./alembic/versions:/app/alembic/versions 
     depends_on:

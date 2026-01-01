@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from typing import List
 
+from app.utils.auth import verify_admin
+
 from ..db import get_db
 from ..models import Comment, Post
 from ..schemas import CommentResponse, CommentCreate
@@ -54,7 +56,7 @@ def create_comment(comment_data: CommentCreate, db: Session = Depends(get_db)):
     return new_comment
 
 @router.delete("/{comment_id}", status_code=204)
-def delete_comment(comment_id: int, db: Session = Depends(get_db)):
+def delete_comment(comment_id: int, db: Session = Depends(get_db), _ = Depends(verify_admin)):
     """Delete a comment"""
     comment = db.query(Comment).filter(Comment.id == comment_id).first()
     if not comment:

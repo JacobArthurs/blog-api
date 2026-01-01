@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from typing import List
 
+from app.utils.auth import verify_admin
+
 from ..db import get_db
 from ..models import Post, Tag
 from ..schemas import PostResponse, PostCreate, PostUpdate
@@ -35,7 +37,7 @@ def get_post_by_slug(slug: str, db: Session = Depends(get_db)):
     return post
 
 @router.post("/", response_model=PostResponse, status_code=201)
-def create_post(post_data: PostCreate, db: Session = Depends(get_db)):
+def create_post(post_data: PostCreate, db: Session = Depends(get_db), _ = Depends(verify_admin)):
     """Create a post"""
     if post_data.slug:
         slug = post_data.slug
@@ -63,7 +65,7 @@ def create_post(post_data: PostCreate, db: Session = Depends(get_db)):
     return new_post
 
 @router.patch("/{post_id}", response_model=PostResponse)
-def update_post(post_id: int, post_data: PostUpdate, db: Session = Depends(get_db)):
+def update_post(post_id: int, post_data: PostUpdate, db: Session = Depends(get_db), _ = Depends(verify_admin)):
     """Update a post"""
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
@@ -100,7 +102,7 @@ def update_post(post_id: int, post_data: PostUpdate, db: Session = Depends(get_d
     return post
 
 @router.delete("/{post_id}", status_code=204)
-def delete_post(post_id: int, db: Session = Depends(get_db)):
+def delete_post(post_id: int, db: Session = Depends(get_db), _ = Depends(verify_admin)):
     """Delete a post"""
     post = db.query(Post).filter(Post.id == post_id).first()
     if not post:
