@@ -1,6 +1,6 @@
 from .posts import PostResponse, PostCreate, PostUpdate
 from .tags import TagResponse, TagCreate, TagUpdate
-from .comments import CommentResponse
+from .comments import CommentResponse, CommentCreate
 
 __all__ = [
     "PostResponse",
@@ -10,4 +10,5 @@ __all__ = [
     "TagCreate",
     "TagUpdate",
     "CommentResponse",
+    "CommentCreate"
 ]
