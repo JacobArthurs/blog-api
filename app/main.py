@@ -1,5 +1,7 @@
 from fastapi import FastAPI
-from .routers import posts, tags, comments, uploads, auth
+from fastapi.staticfiles import StaticFiles
+
+from .routers import posts, tags, comments, uploads, auth, sitemap
 
 app = FastAPI(
     title="Blog API",
@@ -13,6 +15,9 @@ app.include_router(tags.router)
 app.include_router(comments.router)
 app.include_router(uploads.router)
 app.include_router(auth.router)
+app.include_router(sitemap.router)
+
+app.mount("/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
 
 @app.get("/")
 def read_root():
