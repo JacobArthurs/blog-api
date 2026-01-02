@@ -80,14 +80,12 @@ docker compose down -v
 
 ### Search
 
-- **GET** `/search/autocomplete` - Autocomplete search for posts and tags
-  - **Query Parameters**: `q` (required, min 1 character) - Search query string
-  - **Returns**: Up to 10 posts (searched by title and content) and 5 tags (searched by name)
-  - **Use Case**: Optimized for autocomplete/typeahead search functionality
+- **GET** `/search/autocomplete` - Autocomplete search for posts and tags (query params: `q`)
 
-### Sitemap
+### Sitemap & RSS
 
 - **GET** `/sitemap.xml` - Generate and return XML sitemap for all posts and tags
+- **GET** `/rss.xml` - Generate and return RSS 2.0 feed for all posts
 
 ### Root
 
