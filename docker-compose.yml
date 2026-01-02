@@ -32,10 +32,12 @@ services:
       ISSUER: ${ISSUER}
       AUDIENCE: ${AUDIENCE}
     volumes:
-      - ./alembic/versions:/app/alembic/versions 
+      - ./alembic/versions:/app/alembic/versions
+      - blog-uploads:/app/uploads
     depends_on:
       blog-db:
         condition: service_healthy
 
 volumes:
   blog-data:
+  blog-uploads:
