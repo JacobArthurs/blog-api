@@ -78,6 +78,13 @@ docker compose down -v
 - **POST** `/uploads/photos` - Upload a photo file (requires admin authentication, max 10MB, formats: jpg, jpeg, png, gif, webp)
 - **DELETE** `/uploads/photos/{filename}` - Delete a photo by filename (requires admin authentication)
 
+### Search
+
+- **GET** `/search/autocomplete` - Autocomplete search for posts and tags
+  - **Query Parameters**: `q` (required, min 1 character) - Search query string
+  - **Returns**: Up to 10 posts (searched by title and content) and 5 tags (searched by name)
+  - **Use Case**: Optimized for autocomplete/typeahead search functionality
+
 ### Sitemap
 
 - **GET** `/sitemap.xml` - Generate and return XML sitemap for all posts and tags

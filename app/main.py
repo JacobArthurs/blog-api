@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from .routers import posts, tags, comments, uploads, auth, sitemap
+from .routers import posts, tags, comments, uploads, auth, sitemap, search
 
 app = FastAPI(
     title="Blog API",
@@ -16,6 +16,7 @@ app.include_router(comments.router)
 app.include_router(uploads.router)
 app.include_router(auth.router)
 app.include_router(sitemap.router)
+app.include_router(search.router)
 
 app.mount("/uploads", StaticFiles(directory="/app/uploads"), name="uploads")
 
