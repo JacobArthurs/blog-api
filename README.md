@@ -2,6 +2,8 @@
 
 A modern RESTful blog API built with FastAPI, featuring JWT authentication, nested comments, tag management, image uploads, and automatic sitemap generation.
 
+It is designed to work in conjunction with my [Blog Frontend](https://github.com/JacobArthurs/blog-frontend), ensuring a full-stack application experience.
+
 ## Technology Stack
 
 - **Framework**: FastAPI
