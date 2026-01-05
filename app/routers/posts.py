@@ -34,6 +34,11 @@ def get_post_by_slug(slug: str, db: Session = Depends(get_db)):
     post = db.query(Post).options(joinedload(Post.tags)).filter(Post.slug == slug).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
+
+    post.view_count += 1
+    db.commit()
+    db.refresh(post)
+
     return post
 
 @router.post("/", response_model=PostResponse, status_code=201)
