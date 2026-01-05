@@ -54,6 +54,7 @@ def create_post(post_data: PostCreate, db: Session = Depends(get_db), _ = Depend
     new_post = Post(
         title=post_data.title,
         slug=slug,
+        tldr=post_data.tldr,
         content=post_data.content
     )
 
@@ -88,6 +89,9 @@ def update_post(post_id: int, post_data: PostUpdate, db: Session = Depends(get_d
         if new_slug != post.slug:
             validate_unique_slug(new_slug, Post, db)
             post.slug = new_slug
+
+    if post_data.tldr is not None:
+        post.tldr = post_data.tldr
 
     if post_data.content is not None:
         post.content = post_data.content
