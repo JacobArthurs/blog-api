@@ -164,6 +164,9 @@ AUDIENCE=blog-client
 # Admin User
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD_HASH=<generated-hash>
+
+# CORS
+CORS_ORIGINS=*
 ```
 
 **To generate a password hash for the admin user:**

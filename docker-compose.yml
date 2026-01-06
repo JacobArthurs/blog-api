@@ -31,6 +31,7 @@ services:
       ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH}
       ISSUER: ${ISSUER}
       AUDIENCE: ${AUDIENCE}
+      CORS_ORIGINS: ${CORS_ORIGINS}
     volumes:
       - ./alembic/versions:/app/alembic/versions
       - blog-uploads:/app/uploads
