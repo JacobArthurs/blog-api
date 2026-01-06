@@ -29,6 +29,7 @@ class PostResponse(BaseModel):
     summary: str
     content: str
     view_count: int
+    read_time_minutes: int
     featured: bool
     created_at: datetime
     updated_at: datetime

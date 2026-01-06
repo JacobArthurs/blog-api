@@ -8,7 +8,7 @@ from app.utils.auth import verify_admin
 from ..db import get_db
 from ..models import Post, Tag
 from ..schemas import PostResponse, PostCreate, PostUpdate
-from ..utils import slugify, validate_unique_slug
+from ..utils import slugify, validate_unique_slug, calculate_read_time
 
 router = APIRouter(
     prefix="/posts",
@@ -55,11 +55,14 @@ def create_post(post_data: PostCreate, db: Session = Depends(get_db), _ = Depend
     if post_data.featured:
         db.query(Post).filter(Post.featured == True).update({Post.featured: False})
 
+    read_time = calculate_read_time(post_data.content)
+
     new_post = Post(
         title=post_data.title,
         slug=slug,
         summary=post_data.summary,
         content=post_data.content,
+        read_time_minutes=read_time,
         featured=post_data.featured
     )
 
@@ -100,6 +103,7 @@ def update_post(post_id: int, post_data: PostUpdate, db: Session = Depends(get_d
 
     if post_data.content is not None:
         post.content = post_data.content
+        post.read_time_minutes = calculate_read_time(post_data.content)
 
     if post_data.featured is not None:
         if post_data.featured:
