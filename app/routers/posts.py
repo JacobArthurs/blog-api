@@ -51,11 +51,15 @@ def create_post(post_data: PostCreate, db: Session = Depends(get_db), _ = Depend
 
     validate_unique_slug(slug, Post, db)
 
+    if post_data.featured:
+        db.query(Post).update({Post.featured: False})
+
     new_post = Post(
         title=post_data.title,
         slug=slug,
-        tldr=post_data.tldr,
-        content=post_data.content
+        summary=post_data.summary,
+        content=post_data.content,
+        featured=post_data.featured
     )
 
     if post_data.tag_ids:
@@ -90,11 +94,16 @@ def update_post(post_id: int, post_data: PostUpdate, db: Session = Depends(get_d
             validate_unique_slug(new_slug, Post, db)
             post.slug = new_slug
 
-    if post_data.tldr is not None:
-        post.tldr = post_data.tldr
+    if post_data.summary is not None:
+        post.summary = post_data.summary
 
     if post_data.content is not None:
         post.content = post_data.content
+
+    if post_data.featured is not None:
+        if post_data.featured:
+            db.query(Post).filter(Post.id != post_id).update({Post.featured: False})
+        post.featured = post_data.featured
 
     if post_data.tag_ids is not None:
         if post_data.tag_ids:

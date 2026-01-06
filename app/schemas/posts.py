@@ -6,17 +6,19 @@ from app.schemas.tags import TagResponse
 
 class PostCreate(BaseModel):
     title: str
-    tldr: str
+    summary: str
     content: str
     slug: Optional[str] = None
     tag_ids: Optional[List[int]] = []
+    featured: bool = False
 
 class PostUpdate(BaseModel):
     title: Optional[str] = None
-    tldr: Optional[str] = None
+    summary: Optional[str] = None
     content: Optional[str] = None
     slug: Optional[str] = None
     tag_ids: Optional[List[int]] = None
+    featured: Optional[bool] = None
 
 class PostResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -24,9 +26,10 @@ class PostResponse(BaseModel):
     id: int
     title: str
     slug: str
-    tldr: str
+    summary: str
     content: str
     view_count: int
+    featured: bool
     created_at: datetime
     updated_at: datetime
     tags: List[TagResponse] = []

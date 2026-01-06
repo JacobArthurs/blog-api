@@ -92,7 +92,7 @@ def get_rss_feed(db: Session = Depends(get_db)):
         ET.SubElement(item, "title").text = post.title
         ET.SubElement(item, "link").text = f"https://blog.jacobarthurs.com/post/{post.slug}"
         ET.SubElement(item, "guid", isPermaLink="true").text = f"https://blog.jacobarthurs.com/post/{post.slug}"
-        ET.SubElement(item, "description").text = post.tldr
+        ET.SubElement(item, "description").text = post.summary
 
         # Format pubDate according to RFC 822
         pub_date = format_datetime(post.created_at.replace(tzinfo=timezone.utc))
