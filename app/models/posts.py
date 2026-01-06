@@ -11,6 +11,7 @@ class Post(Base):
     summary = Column(Text, nullable=False)
     content = Column(Text, nullable=False)
     view_count = Column(Integer, nullable=False, default=0)
+    read_time_minutes = Column(Integer, nullable=False, default=0)
     featured = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
