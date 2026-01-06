@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import and_
 from typing import List
 
 from app.utils.auth import verify_admin
@@ -52,7 +53,7 @@ def create_post(post_data: PostCreate, db: Session = Depends(get_db), _ = Depend
     validate_unique_slug(slug, Post, db)
 
     if post_data.featured:
-        db.query(Post).update({Post.featured: False})
+        db.query(Post).filter(Post.featured == True).update({Post.featured: False})
 
     new_post = Post(
         title=post_data.title,
@@ -102,7 +103,12 @@ def update_post(post_id: int, post_data: PostUpdate, db: Session = Depends(get_d
 
     if post_data.featured is not None:
         if post_data.featured:
-            db.query(Post).filter(Post.id != post_id).update({Post.featured: False})
+            db.query(Post).filter(
+                and_(
+                    Post.featured == True,
+                    Post.id != post_id
+                )
+            ).update({Post.featured: False})
         post.featured = post_data.featured
 
     if post_data.tag_ids is not None:
