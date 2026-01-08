@@ -52,7 +52,9 @@ docker compose down -v
 
 ### Posts
 
-- **GET** `/posts/` - Get all posts with pagination (query params: `skip`, `limit`)
+- **GET** `/posts/` - Get all posts with pagination, excluding featured post (query params: `skip`, `limit`)
+- **GET** `/posts/featured` - Get the featured post
+- **GET** `/posts/tag/{tag_slug}` - Get all posts for a specific tag with pagination (query params: `skip`, `limit`)
 - **GET** `/posts/{post_id}` - Get a specific post by ID
 - **GET** `/posts/slug/{slug}` - Get a specific post by slug
 - **POST** `/posts/` - Create a new post (requires admin authentication)
@@ -71,7 +73,7 @@ docker compose down -v
 ### Comments
 
 - **GET** `/comments/{comment_id}` - Get a specific comment by ID with replies
-- **GET** `/comments/post/{post_id}` - Get all top-level comments for a post (query params: `skip`, `limit`)
+- **GET** `/comments/post/{post_id}` - Get all top-level comments for a post with pagination (query params: `skip`, `limit`)
 - **POST** `/comments/` - Create a new comment (supports nested replies)
 - **DELETE** `/comments/{comment_id}` - Delete a comment (requires admin authentication)
 

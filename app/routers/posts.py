@@ -16,9 +16,27 @@ router = APIRouter(
 )
 
 @router.get("/", response_model=List[PostResponse])
-def get_posts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Get all posts with pagination"""
-    posts = db.query(Post).options(joinedload(Post.tags)).offset(skip).limit(limit).all()
+def get_posts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    """Get all posts with pagination, excluding featured post"""
+    posts = db.query(Post).options(joinedload(Post.tags)).filter(Post.featured == False).order_by(Post.created_at.desc()).offset(skip).limit(limit).all()
+    return posts
+
+@router.get("/featured", response_model=PostResponse)
+def get_featured_post(db: Session = Depends(get_db)):
+    """Get the featured post"""
+    post = db.query(Post).options(joinedload(Post.tags)).filter(Post.featured == True).first()
+    if not post:
+        raise HTTPException(status_code=404, detail="No featured post found")
+    return post
+
+@router.get("/tag/{tag_slug}", response_model=List[PostResponse])
+def get_posts_by_tag(tag_slug: str, skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    """Get all posts for a specific tag"""
+    tag = db.query(Tag).filter(Tag.slug == tag_slug).first()
+    if not tag:
+        raise HTTPException(status_code=404, detail="Tag not found")
+
+    posts = db.query(Post).options(joinedload(Post.tags)).join(Post.tags).filter(Tag.id == tag.id).order_by(Post.created_at.desc()).offset(skip).limit(limit).all()
     return posts
 
 @router.get("/{post_id}", response_model=PostResponse)
