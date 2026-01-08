@@ -1,21 +1,8 @@
-from pydantic import BaseModel, ConfigDict
-from datetime import datetime
+from pydantic import BaseModel
 
-class PostSearchResult(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    title: str
-    slug: str
-    created_at: datetime
-
-class TagSearchResult(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    name: str
-    slug: str
+from app.schemas.posts import PostResponse
+from app.schemas.tags import TagResponse
 
 class SearchResponse(BaseModel):
-    posts: list[PostSearchResult]
-    tags: list[TagSearchResult]
+    posts: list[PostResponse]
+    tags: list[TagResponse]

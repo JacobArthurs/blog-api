@@ -84,7 +84,7 @@ docker compose down -v
 
 ### Search
 
-- **GET** `/search/autocomplete` - Autocomplete search for posts and tags (query params: `q`)
+- **GET** `/search/autocomplete` - Autocomplete search for posts and tags (query params: `q`, `skip`, `limit`)
 
 ### Sitemap & RSS
 
