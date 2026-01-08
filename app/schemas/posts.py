@@ -6,17 +6,18 @@ from app.schemas.tags import TagResponse
 
 class PostCreate(BaseModel):
     title: str
+    slug: Optional[str] = None
     summary: str
     content: str
-    slug: Optional[str] = None
     tag_ids: Optional[List[int]] = []
     featured: bool = False
 
 class PostUpdate(BaseModel):
     title: Optional[str] = None
+    slug: Optional[str] = None
     summary: Optional[str] = None
     content: Optional[str] = None
-    slug: Optional[str] = None
+    view_count: Optional[int] = None
     tag_ids: Optional[List[int]] = None
     featured: Optional[bool] = None
 

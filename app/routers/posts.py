@@ -105,6 +105,9 @@ def update_post(post_id: int, post_data: PostUpdate, db: Session = Depends(get_d
         post.content = post_data.content
         post.read_time_minutes = calculate_read_time(post_data.content)
 
+    if post_data.view_count is not None:
+        post.view_count = post_data.view_count
+
     if post_data.featured is not None:
         if post_data.featured:
             db.query(Post).filter(
