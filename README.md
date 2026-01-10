@@ -75,6 +75,8 @@ docker compose down -v
 - **GET** `/comments/{comment_id}` - Get a specific comment by ID with replies
 - **GET** `/comments/post/{post_id}` - Get all top-level comments for a post with pagination (query params: `skip`, `limit`)
 - **POST** `/comments/` - Create a new comment (supports nested replies)
+- **POST** `/comments/{comment_id}/like` - Increment the like count for a comment
+- **POST** `/comments/{comment_id}/dislike` - Decrement the like count for a comment
 - **DELETE** `/comments/{comment_id}` - Delete a comment (requires admin authentication)
 
 ### Uploads

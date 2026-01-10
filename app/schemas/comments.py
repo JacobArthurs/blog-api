@@ -18,6 +18,7 @@ class CommentResponse(BaseModel):
     author_name: str
     author_email: EmailStr
     content: str
+    like_count: int
     created_at: datetime
     replies: List["CommentResponse"] = []
 

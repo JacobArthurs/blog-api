@@ -55,6 +55,32 @@ def create_comment(comment_data: CommentCreate, db: Session = Depends(get_db)):
 
     return new_comment
 
+@router.post("/{comment_id}/like", response_model=CommentResponse)
+def like_comment(comment_id: int, db: Session = Depends(get_db)):
+    """Like a comment by incrementing its like count"""
+    comment = db.query(Comment).filter(Comment.id == comment_id).first()
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    comment.like_count += 1
+    db.commit()
+    db.refresh(comment)
+
+    return comment
+
+@router.post("/{comment_id}/dislike", response_model=CommentResponse)
+def dislike_comment(comment_id: int, db: Session = Depends(get_db)):
+    """Dislike a comment by decrementing its like count"""
+    comment = db.query(Comment).filter(Comment.id == comment_id).first()
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
+    comment.like_count -= 1
+    db.commit()
+    db.refresh(comment)
+
+    return comment
+
 @router.delete("/{comment_id}", status_code=204)
 def delete_comment(comment_id: int, db: Session = Depends(get_db), _ = Depends(verify_admin)):
     """Delete a comment"""
