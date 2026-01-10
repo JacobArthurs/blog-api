@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_
 from typing import List
+from slowapi.util import get_remote_address
+from cachetools import TTLCache
 
 from app.utils.auth import verify_admin
 
@@ -9,6 +11,8 @@ from ..db import get_db
 from ..models import Post, Tag
 from ..schemas import PostResponse, PostCreate, PostUpdate
 from ..utils import slugify, validate_unique_slug, calculate_read_time
+
+view_cache = TTLCache(maxsize=10000, ttl=3600)
 
 router = APIRouter(
     prefix="/posts",
@@ -48,15 +52,20 @@ def get_post(post_id: int, db: Session = Depends(get_db)):
     return post
 
 @router.get("/slug/{slug}", response_model=PostResponse)
-def get_post_by_slug(slug: str, db: Session = Depends(get_db)):
-    """Get a post by slug"""
+def get_post_by_slug(request: Request, slug: str, db: Session = Depends(get_db)):
+    """Get a post by slug and increment view count"""
     post = db.query(Post).options(joinedload(Post.tags)).filter(Post.slug == slug).first()
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
 
-    post.view_count += 1
-    db.commit()
-    db.refresh(post)
+    client_ip = get_remote_address(request)
+    cache_key = f"{post.id}:{client_ip}"
+
+    if cache_key not in view_cache:
+        post.view_count += 1
+        db.commit()
+        db.refresh(post)
+        view_cache[cache_key] = True
 
     return post
 

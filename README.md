@@ -56,7 +56,7 @@ docker compose down -v
 - **GET** `/posts/featured` - Get the featured post
 - **GET** `/posts/tag/{tag_slug}` - Get all posts for a specific tag with pagination (query params: `skip`, `limit`)
 - **GET** `/posts/{post_id}` - Get a specific post by ID
-- **GET** `/posts/slug/{slug}` - Get a specific post by slug
+- **GET** `/posts/slug/{slug}` - Get a specific post by slug (automatically increments view count)
 - **POST** `/posts/` - Create a new post (requires admin authentication)
 - **PATCH** `/posts/{post_id}` - Update a post (requires admin authentication)
 - **DELETE** `/posts/{post_id}` - Delete a post (requires admin authentication)
