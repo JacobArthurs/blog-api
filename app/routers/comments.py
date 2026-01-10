@@ -1,12 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
 from typing import List
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 from app.utils.auth import verify_admin
 
 from ..db import get_db
 from ..models import Comment, Post
 from ..schemas import CommentResponse, CommentCreate
+
+limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter(
     prefix="/comments",
@@ -28,7 +32,9 @@ def get_comments_by_post(post_id: int, skip: int = 0, limit: int = 100, db: Sess
     return comments
 
 @router.post("/", response_model=CommentResponse, status_code=201)
-def create_comment(comment_data: CommentCreate, db: Session = Depends(get_db)):
+@limiter.limit("3/minute")
+@limiter.limit("20/hour")
+def create_comment(request: Request, comment_data: CommentCreate, db: Session = Depends(get_db)):
     """Create a comment"""
     post = db.query(Post).filter(Post.id == comment_data.post_id).first()
     if not post:
@@ -56,7 +62,9 @@ def create_comment(comment_data: CommentCreate, db: Session = Depends(get_db)):
     return new_comment
 
 @router.post("/{comment_id}/like", response_model=CommentResponse)
-def like_comment(comment_id: int, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+@limiter.limit("100/hour")
+def like_comment(request: Request, comment_id: int, db: Session = Depends(get_db)):
     """Like a comment by incrementing its like count"""
     comment = db.query(Comment).filter(Comment.id == comment_id).first()
     if not comment:
@@ -69,7 +77,9 @@ def like_comment(comment_id: int, db: Session = Depends(get_db)):
     return comment
 
 @router.post("/{comment_id}/dislike", response_model=CommentResponse)
-def dislike_comment(comment_id: int, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+@limiter.limit("100/hour")
+def dislike_comment(request: Request, comment_id: int, db: Session = Depends(get_db)):
     """Dislike a comment by decrementing its like count"""
     comment = db.query(Comment).filter(Comment.id == comment_id).first()
     if not comment:
