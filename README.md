@@ -52,9 +52,9 @@ docker compose down -v
 
 ### Posts
 
-- **GET** `/posts/` - Get all posts with pagination, excluding featured post (query params: `skip`, `limit`)
+- **GET** `/posts/` - Get all posts with pagination, excluding featured post (query params: `offset`, `limit`)
 - **GET** `/posts/featured` - Get the featured post
-- **GET** `/posts/tag/{tag_slug}` - Get all posts for a specific tag with pagination (query params: `skip`, `limit`)
+- **GET** `/posts/tag/{tag_slug}` - Get all posts for a specific tag with pagination (query params: `offset`, `limit`)
 - **GET** `/posts/{post_id}` - Get a specific post by ID
 - **GET** `/posts/slug/{slug}` - Get a specific post by slug (automatically increments view count)
 - **POST** `/posts/` - Create a new post (requires admin authentication)
@@ -63,7 +63,7 @@ docker compose down -v
 
 ### Tags
 
-- **GET** `/tags/` - Get all tags with pagination (query params: `skip`, `limit`)
+- **GET** `/tags/` - Get all tags with pagination (query params: `offset`, `limit`)
 - **GET** `/tags/{tag_id}` - Get a specific tag by ID
 - **GET** `/tags/slug/{slug}` - Get a specific tag by slug
 - **POST** `/tags/` - Create a new tag (requires admin authentication)
@@ -73,7 +73,7 @@ docker compose down -v
 ### Comments
 
 - **GET** `/comments/{comment_id}` - Get a specific comment by ID with replies
-- **GET** `/comments/post/{post_id}` - Get all top-level comments for a post with pagination (query params: `skip`, `limit`)
+- **GET** `/comments/post/{post_id}` - Get all top-level comments for a post with pagination (query params: `offset`, `limit`)
 - **POST** `/comments/` - Create a new comment (supports nested replies)
 - **POST** `/comments/{comment_id}/like` - Increment the like count for a comment
 - **POST** `/comments/{comment_id}/dislike` - Decrement the like count for a comment
@@ -86,7 +86,7 @@ docker compose down -v
 
 ### Search
 
-- **GET** `/search/autocomplete` - Autocomplete search for posts and tags (query params: `q`, `skip`, `limit`)
+- **GET** `/search/autocomplete` - Autocomplete search for posts and tags (query params: `q`, `offset`, `limit`)
 
 ### Sitemap & RSS
 

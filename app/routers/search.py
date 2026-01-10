@@ -11,7 +11,7 @@ router = APIRouter(prefix="/search", tags=["search"])
 
 
 @router.get("/autocomplete", response_model=SearchResponse)
-def autocomplete_search(q: str = Query(..., min_length=1), skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+def autocomplete_search(q: str = Query(..., min_length=1), offset: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     """Autocomplete search endpoint for posts and tags"""
 
     # Search posts by title or summary
@@ -20,7 +20,7 @@ def autocomplete_search(q: str = Query(..., min_length=1), skip: int = 0, limit:
             Post.title.ilike(f"%{q}%"),
             Post.summary.ilike(f"%{q}%")
         )
-    ).order_by(Post.created_at.desc()).offset(skip).limit(limit).all()
+    ).order_by(Post.view_count.desc(), Post.created_at.desc()).offset(offset).limit(limit).all()
 
     # Search tags by name
     tags = db.query(Tag).filter(

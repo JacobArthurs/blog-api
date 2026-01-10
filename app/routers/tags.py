@@ -1,12 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
 
 from app.utils.auth import verify_admin
 
 from ..db import get_db
 from ..models import Tag
-from ..schemas import TagResponse, TagCreate, TagUpdate
+from ..schemas import TagResponse, TagCreate, TagUpdate, PaginatedResponse
 from ..utils import slugify, validate_unique_slug
 
 router = APIRouter(
@@ -14,11 +13,13 @@ router = APIRouter(
     tags=["tags"]
 )
 
-@router.get("/", response_model=List[TagResponse])
-def get_tags(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+@router.get("/", response_model=PaginatedResponse[TagResponse])
+def get_tags(offset: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     """Get all tags with pagination"""
-    tags = db.query(Tag).offset(skip).limit(limit).all()
-    return tags
+    query = db.query(Tag).order_by(Tag.name.desc())
+    total = query.count()
+    tags = query.offset(offset).limit(limit).all()
+    return PaginatedResponse(items=tags, total=total, offset=offset, limit=limit)
 
 @router.get("/{tag_id}", response_model=TagResponse)
 def get_tag(tag_id: int, db: Session = Depends(get_db)):

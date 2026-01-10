@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_
-from typing import List
 from slowapi.util import get_remote_address
 from cachetools import TTLCache
 
@@ -9,7 +8,7 @@ from app.utils.auth import verify_admin
 
 from ..db import get_db
 from ..models import Post, Tag
-from ..schemas import PostResponse, PostCreate, PostUpdate
+from ..schemas import PostResponse, PostCreate, PostUpdate, PaginatedResponse
 from ..utils import slugify, validate_unique_slug, calculate_read_time
 
 view_cache = TTLCache(maxsize=10000, ttl=3600)
@@ -19,11 +18,13 @@ router = APIRouter(
     tags=["posts"]
 )
 
-@router.get("/", response_model=List[PostResponse])
-def get_posts(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+@router.get("/", response_model=PaginatedResponse[PostResponse])
+def get_posts(offset: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     """Get all posts with pagination, excluding featured post"""
-    posts = db.query(Post).options(joinedload(Post.tags)).filter(Post.featured == False).order_by(Post.created_at.desc()).offset(skip).limit(limit).all()
-    return posts
+    query = db.query(Post).options(joinedload(Post.tags)).filter(Post.featured == False).order_by(Post.created_at.desc())
+    total = query.count()
+    posts = query.offset(offset).limit(limit).all()
+    return PaginatedResponse(items=posts, total=total, offset=offset, limit=limit)
 
 @router.get("/featured", response_model=PostResponse)
 def get_featured_post(db: Session = Depends(get_db)):
@@ -33,15 +34,17 @@ def get_featured_post(db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No featured post found")
     return post
 
-@router.get("/tag/{tag_slug}", response_model=List[PostResponse])
-def get_posts_by_tag(tag_slug: str, skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+@router.get("/tag/{tag_slug}", response_model=PaginatedResponse[PostResponse])
+def get_posts_by_tag(tag_slug: str, offset: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     """Get all posts for a specific tag"""
     tag = db.query(Tag).filter(Tag.slug == tag_slug).first()
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")
 
-    posts = db.query(Post).options(joinedload(Post.tags)).join(Post.tags).filter(Tag.id == tag.id).order_by(Post.created_at.desc()).offset(skip).limit(limit).all()
-    return posts
+    query = db.query(Post).options(joinedload(Post.tags)).join(Post.tags).filter(Tag.id == tag.id).order_by(Post.created_at.desc())
+    total = query.count()
+    posts = query.offset(offset).limit(limit).all()
+    return PaginatedResponse(items=posts, total=total, offset=offset, limit=limit)
 
 @router.get("/{post_id}", response_model=PostResponse)
 def get_post(post_id: int, db: Session = Depends(get_db)):

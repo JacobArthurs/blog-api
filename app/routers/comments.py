@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
-from typing import List
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
@@ -8,7 +7,7 @@ from app.utils.auth import verify_admin
 
 from ..db import get_db
 from ..models import Comment, Post
-from ..schemas import CommentResponse, CommentCreate
+from ..schemas import CommentResponse, CommentCreate, PaginatedResponse
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -25,11 +24,13 @@ def get_comment(comment_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Comment not found")
     return comment
 
-@router.get("/post/{post_id}", response_model=List[CommentResponse])
-def get_comments_by_post(post_id: int, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+@router.get("/post/{post_id}", response_model=PaginatedResponse[CommentResponse])
+def get_comments_by_post(post_id: int, offset: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     """Get all comments for a specific post"""
-    comments = db.query(Comment).options(joinedload(Comment.replies)).filter(Comment.post_id == post_id, Comment.parent_id == None).offset(skip).limit(limit).all()
-    return comments
+    query = db.query(Comment).options(joinedload(Comment.replies)).filter(Comment.post_id == post_id, Comment.parent_id == None).order_by(Comment.like_count.desc(), Comment.created_at.desc())
+    total = query.count()
+    comments = query.offset(offset).limit(limit).all()
+    return PaginatedResponse(items=comments, total=total, offset=offset, limit=limit)
 
 @router.post("/", response_model=CommentResponse, status_code=201)
 @limiter.limit("3/minute")
