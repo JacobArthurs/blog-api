@@ -1,15 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-
+from app.utils.limiter import limiter
 from app.utils.auth import verify_admin
 
 from ..db import get_db
 from ..models import Comment, Post
 from ..schemas import CommentResponse, CommentCreate, PaginatedResponse
-
-limiter = Limiter(key_func=get_remote_address)
 
 router = APIRouter(
     prefix="/comments",
