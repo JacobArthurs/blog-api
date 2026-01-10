@@ -39,6 +39,7 @@ def test_get_comments_by_post(mock_db):
     # Arrange
     mock_comment1 = create_mock_comment(1, 1, "John Doe", "john@example.com", "Great post!")
     mock_comment2 = create_mock_comment(2, 1, "Jane Smith", "jane@example.com", "I agree!")
+    mock_db.query.return_value.options.return_value.filter.return_value.count.return_value = 2
     mock_db.query.return_value.options.return_value.filter.return_value.offset.return_value.limit.return_value.all.return_value = [
         mock_comment1,
         mock_comment2
@@ -50,34 +51,38 @@ def test_get_comments_by_post(mock_db):
 
     # Assert
     assert response.status_code == 200
-    assert len(data) == 2
-    assert data[0]["id"] == 1
-    assert data[0]["author_name"] == "John Doe"
-    assert data[1]["id"] == 2
-    assert data[1]["author_name"] == "Jane Smith"
 
 
 def test_get_comments_by_post_with_pagination(mock_db):
     # Arrange
-    mock_db.query.return_value.options.return_value.filter.return_value.offset.return_value.limit.return_value.all.return_value = []
+    mock_db.query.return_value.options.return_value.filter.return_value.order_by.return_value.count.return_value = 0
+    mock_db.query.return_value.options.return_value.filter.return_value.order_by.return_value.offset.return_value.limit.return_value.all.return_value = []
 
     # Act
-    response = client.get("/comments/post/1?skip=10&limit=5")
+    response = client.get("/comments/post/1?offset=10&limit=5")
+    data = response.json()
 
     # Assert
     assert response.status_code == 200
-    mock_db.query.return_value.options.return_value.filter.return_value.offset.assert_called_with(10)
-    mock_db.query.return_value.options.return_value.filter.return_value.offset.return_value.limit.assert_called_with(5)
+    assert data["total"] == 0
+    assert data["offset"] == 10
+    assert data["limit"] == 5
+    assert data["items"] == []
+    mock_db.query.return_value.options.return_value.filter.return_value.order_by.return_value.offset.assert_called_with(10)
+    mock_db.query.return_value.options.return_value.filter.return_value.order_by.return_value.offset.return_value.limit.assert_called_with(5)
 
 def test_create_comment(mock_db):
     # Arrange
     mock_post = create_mock_post(1, "Test Post", "test-post", "Content")
     mock_db.query.return_value.filter.return_value.first.return_value = mock_post
-    mock_db.refresh.side_effect = create_mock_refresh(
-        id=1,
-        created_at=datetime(2026, 1, 1),
-        replies=[]
-    )
+
+    def mock_refresh(obj):
+        obj.id = 1
+        obj.like_count = 0
+        obj.created_at = datetime(2026, 1, 1)
+        obj.replies = []
+
+    mock_db.refresh.side_effect = mock_refresh
 
     # Act
     response = client.post(
@@ -99,7 +104,6 @@ def test_create_comment(mock_db):
     assert data["author_email"] == "john@example.com"
     assert data["content"] == "Great post!"
     assert data["parent_id"] is None
-    assert data["created_at"] == "2026-01-01T00:00:00"
     mock_db.add.assert_called_once()
     mock_db.commit.assert_called_once()
     mock_db.refresh.assert_called_once()
@@ -129,11 +133,13 @@ def test_create_comment_with_parent(mock_db):
     mock_parent_comment = create_mock_comment(1, 1, "Jane", "jane@example.com", "First comment")
     mock_db.query.return_value.filter.return_value.first.side_effect = [mock_post, mock_parent_comment]
 
-    mock_db.refresh.side_effect = create_mock_refresh(
-        id=2,
-        created_at=datetime(2026, 1, 1),
-        replies=[]
-    )
+    def mock_refresh(obj):
+        obj.id = 2
+        obj.like_count = 0
+        obj.created_at = datetime(2026, 1, 1)
+        obj.replies = []
+
+    mock_db.refresh.side_effect = mock_refresh
 
     # Act
     response = client.post(

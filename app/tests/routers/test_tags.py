@@ -8,7 +8,8 @@ client = TestClient(app)
 def test_get_tags(mock_db):
     # Arrange
     mock_tag = create_mock_tag(1, "Python", "python")
-    mock_db.query.return_value.offset.return_value.limit.return_value.all.return_value = [mock_tag]
+    mock_db.query.return_value.order_by.return_value.count.return_value = 1
+    mock_db.query.return_value.order_by.return_value.offset.return_value.limit.return_value.all.return_value = [mock_tag]
 
     # Act
     response = client.get("/tags/")
@@ -16,22 +17,33 @@ def test_get_tags(mock_db):
 
     # Assert
     assert response.status_code == 200
-    assert len(data) == 1
-    assert data[0]["id"] == 1
-    assert data[0]["name"] == "Python"
-    assert data[0]["slug"] == "python"
+    assert data["total"] == 1
+    assert data["offset"] == 0
+    assert data["limit"] == 10
+    assert len(data["items"]) == 1
+    assert data["items"][0]["id"] == 1
+    assert data["items"][0]["name"] == "Python"
+    assert data["items"][0]["slug"] == "python"
 
 def test_get_tags_with_pagination(mock_db):
     # Arrange
-    mock_db.query.return_value.offset.return_value.limit.return_value.all.return_value = []
+    mock_db.query.return_value.order_by.return_value.count.return_value = 0
+    mock_db.query.return_value.order_by.return_value.offset.return_value.limit.return_value.all.return_value = []
 
     # Act
-    response = client.get("/tags/?skip=10&limit=5")
+    response = client.get("/tags/?offset=10&limit=5")
+    data = response.json()
 
     # Assert
     assert response.status_code == 200
-    mock_db.query.return_value.offset.assert_called_with(10)
-    mock_db.query.return_value.offset.return_value.limit.assert_called_with(5)
+    assert data["total"] == 0
+    assert data["offset"] == 10
+    assert data["limit"] == 5
+    assert data["items"] == []
+    # Get the query object and verify offset and limit were called correctly
+    query = mock_db.query.return_value
+    query.order_by.return_value.offset.assert_called_with(10)
+    query.order_by.return_value.offset.return_value.limit.assert_called_with(5)
 
 def test_get_tag_by_id(mock_db):
     # Arrange

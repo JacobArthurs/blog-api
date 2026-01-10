@@ -10,6 +10,7 @@ os.environ["ADMIN_PASSWORD_HASH"] = "$2b$12$test_hash"
 os.environ["ACCESS_TOKEN_EXPIRE_MINUTES"] = "30"
 os.environ["ISSUER"] = "test-issuer"
 os.environ["AUDIENCE"] = "test-audience"
+os.environ["CORS_ORIGINS"] = "*"
 
 from app.utils.auth import verify_admin
 from app.db.database import get_db
@@ -32,10 +33,18 @@ def mock_utils(mocker):
     mocker.patch("app.routers.posts.validate_unique_slug", return_value=None)
     mocker.patch("app.routers.tags.slugify", return_value="auto-slug")
     mocker.patch("app.routers.tags.validate_unique_slug", return_value=None)
+    mocker.patch("app.routers.posts.calculate_read_time", return_value=5)
+
     yield
 
 @pytest.fixture()
 def mock_auth():
     """Selectively bypass authentication for all tests"""
     app.dependency_overrides[verify_admin] = lambda: None
+    yield
+
+@pytest.fixture(scope="session", autouse=True)
+def disable_rate_limiting():
+    from app.utils.limiter import limiter
+    limiter.enabled = False
     yield

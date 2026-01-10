@@ -8,7 +8,8 @@ client = TestClient(app)
 def test_get_posts(mock_db):
     # Arrange
     mock_post = create_mock_post(1, "Test", "test-slug", "Content")
-    mock_db.query.return_value.options.return_value.offset.return_value.limit.return_value.all.return_value = [mock_post]
+    mock_db.query.return_value.options.return_value.filter.return_value.order_by.return_value.count.return_value = 1
+    mock_db.query.return_value.options.return_value.filter.return_value.order_by.return_value.offset.return_value.limit.return_value.all.return_value = [mock_post]
 
     # Act
     response = client.get("/posts/")
@@ -16,24 +17,33 @@ def test_get_posts(mock_db):
 
     # Assert
     assert response.status_code == 200
-    assert len(data) == 1
-    assert data[0]["id"] == 1
-    assert data[0]["title"] == "Test"
-    assert data[0]["slug"] == "test-slug"
-    assert data[0]["content"] == "Content"
-    assert data[0]["tags"] == []
+    assert data["total"] == 1
+    assert data["offset"] == 0
+    assert data["limit"] == 10
+    assert len(data["items"]) == 1
+    assert data["items"][0]["id"] == 1
+    assert data["items"][0]["title"] == "Test"
+    assert data["items"][0]["slug"] == "test-slug"
+    assert data["items"][0]["content"] == "Content"
+    assert data["items"][0]["tags"] == []
 
 def test_get_posts_with_pagination(mock_db):
     # Arrange
-    mock_db.query.return_value.options.return_value.offset.return_value.limit.return_value.all.return_value = []
+    mock_db.query.return_value.options.return_value.filter.return_value.order_by.return_value.count.return_value = 0
+    mock_db.query.return_value.options.return_value.filter.return_value.order_by.return_value.offset.return_value.limit.return_value.all.return_value = []
 
     # Act
-    response = client.get("/posts/?skip=10&limit=5")
+    response = client.get("/posts/?offset=10&limit=5")
+    data = response.json()
 
     # Assert
     assert response.status_code == 200
-    mock_db.query.return_value.options.return_value.offset.assert_called_with(10)
-    mock_db.query.return_value.options.return_value.offset.return_value.limit.assert_called_with(5)
+    assert data["total"] == 0
+    assert data["offset"] == 10
+    assert data["limit"] == 5
+    assert data["items"] == []
+    mock_db.query.return_value.options.return_value.filter.return_value.order_by.return_value.offset.assert_called_with(10)
+    mock_db.query.return_value.options.return_value.filter.return_value.order_by.return_value.offset.return_value.limit.assert_called_with(5)
 
 def test_get_post_by_id(mock_db):
     # Arrange
@@ -101,7 +111,7 @@ def test_create_post(mock_db, mock_auth):
     # Act
     response = client.post(
         "/posts/",
-        json={"title": "New Post", "content": "Post content"}
+        json={"title": "New Post", "summary": "Post summary", "content": "Post content"}
     )
     data = response.json()
 
@@ -131,7 +141,7 @@ def test_create_post_with_custom_slug(mock_db, mock_auth, mocker):
     # Act
     response = client.post(
         "/posts/",
-        json={"title": "New Post", "content": "Post content", "slug": "custom-slug"}
+        json={"title": "New Post", "summary": "Post summary", "content": "Post content", "slug": "custom-slug"}
     )
     data = response.json()
 
@@ -158,7 +168,7 @@ def test_create_post_with_tags(mock_db, mock_auth):
     # Act
     response = client.post(
         "/posts/",
-        json={"title": "New Post", "content": "Post content", "tag_ids": [1, 2]}
+        json={"title": "New Post", "summary": "Post summary", "content": "Post content", "tag_ids": [1, 2]}
     )
     data = response.json()
 
@@ -178,7 +188,7 @@ def test_create_post_with_invalid_tag_ids(mock_db, mock_auth):
     # Act
     response = client.post(
         "/posts/",
-        json={"title": "New Post", "content": "Post content", "tag_ids": [999]}
+        json={"title": "New Post", "summary": "Post summary", "content": "Post content", "tag_ids": [999]}
     )
 
     # Assert
