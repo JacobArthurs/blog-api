@@ -1,20 +1,21 @@
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from datetime import datetime
 from typing import List, Optional
 
 class CommentCreate(BaseModel):
     post_id: int
     parent_id: Optional[int] = None
-    author_name: str
-    author_email: EmailStr
-    content: str
+    author_name: str = Field(..., min_length=2, max_length=100)
+    author_email: EmailStr = Field(..., max_length=254)
+    content: str = Field(..., min_length=1, max_length=2000)
 
 class CommentResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
     post_id: int
-    parent_id: Optional[int]
+    parent_id: int | None
+    depth: int
     author_name: str
     author_email: EmailStr
     content: str

@@ -8,6 +8,7 @@ class Comment(Base):
     id = Column(Integer, primary_key=True)
     post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"), nullable=False)
     parent_id = Column(Integer, ForeignKey("comments.id", ondelete="CASCADE"), nullable=True)
+    depth = Column(Integer, nullable=False, default=0)
     author_name = Column(String(100), nullable=False)
     author_email = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)

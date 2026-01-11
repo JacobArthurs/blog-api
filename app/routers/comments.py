@@ -37,16 +37,19 @@ def create_comment(request: Request, comment_data: CommentCreate, db: Session = 
     if not post:
         raise HTTPException(status_code=404, detail="Post not found")
 
-    if comment_data.parent_id:
+    if comment_data.parent_id is not None:
         parent_comment = db.query(Comment).filter(Comment.id == comment_data.parent_id).first()
         if not parent_comment:
             raise HTTPException(status_code=404, detail="Parent comment not found")
         if parent_comment.post_id != comment_data.post_id:
             raise HTTPException(status_code=400, detail="Parent comment does not belong to the specified post")
+        if parent_comment.depth >= 4:
+            raise HTTPException(status_code=400, detail="Maximum comment reply depth reached")
 
     new_comment = Comment(
         post_id=comment_data.post_id,
         parent_id=comment_data.parent_id,
+        depth=parent_comment.depth + 1 if comment_data.parent_id else 0,
         author_name=comment_data.author_name,
         author_email=comment_data.author_email,
         content=comment_data.content
