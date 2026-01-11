@@ -35,3 +35,4 @@ class PostResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     tags: List[TagResponse] = []
+    comment_count: int
