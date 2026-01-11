@@ -17,4 +17,4 @@ class Comment(Base):
 
     post = relationship("Post", back_populates="comments")
     parent = relationship("Comment", remote_side=[id], back_populates="replies")
-    replies = relationship("Comment", back_populates="parent", cascade="all, delete")
+    replies = relationship("Comment", back_populates="parent", cascade="all, delete", order_by="Comment.like_count.desc(), Comment.created_at.desc()")

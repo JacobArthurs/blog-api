@@ -16,8 +16,8 @@ class Post(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
-    tags = relationship("Tag", secondary="post_tags", back_populates="posts")
-    comments = relationship("Comment", back_populates="post", cascade="all, delete")
+    tags = relationship("Tag", secondary="post_tags", back_populates="posts", order_by="Tag.created_at.desc()")
+    comments = relationship("Comment", back_populates="post", cascade="all, delete", order_by="Comment.like_count.desc(), Comment.created_at.desc()")
 
     comment_count = column_property(
         select(func.count(column("id")))
