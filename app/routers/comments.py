@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
-from app.utils.limiter import limiter
+from app.utils import limiter, view_cache
+from slowapi.util import get_remote_address
 from app.utils.auth import verify_admin
 
 from ..db import get_db
@@ -70,9 +71,14 @@ def like_comment(request: Request, comment_id: int, db: Session = Depends(get_db
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
 
-    comment.like_count += 1
-    db.commit()
-    db.refresh(comment)
+    client_ip = get_remote_address(request)
+    cache_key = f"like:{comment.id}:{client_ip}"
+
+    if cache_key not in view_cache:
+        comment.like_count += 1
+        db.commit()
+        db.refresh(comment)
+        view_cache[cache_key] = True
 
     return comment
 
@@ -85,9 +91,14 @@ def dislike_comment(request: Request, comment_id: int, db: Session = Depends(get
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
 
-    comment.like_count -= 1
-    db.commit()
-    db.refresh(comment)
+    client_ip = get_remote_address(request)
+    cache_key = f"dislike:{comment.id}:{client_ip}"
+
+    if cache_key not in view_cache:
+        comment.like_count -= 1
+        db.commit()
+        db.refresh(comment)
+        view_cache[cache_key] = True
 
     return comment
 

@@ -2,16 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import and_
 from slowapi.util import get_remote_address
-from cachetools import TTLCache
-
+from app.utils import view_cache
 from app.utils.auth import verify_admin
 
 from ..db import get_db
 from ..models import Post, Tag
 from ..schemas import PostResponse, PostCreate, PostUpdate, PaginatedResponse
 from ..utils import slugify, validate_unique_slug, calculate_read_time
-
-view_cache = TTLCache(maxsize=10000, ttl=3600)
 
 router = APIRouter(
     prefix="/posts",
