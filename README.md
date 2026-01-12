@@ -64,6 +64,7 @@ docker compose down -v
 ### Tags
 
 - **GET** `/tags/` - Get all tags with pagination (query params: `offset`, `limit`)
+- **GET** `/tags/all` - Get all tags without pagination
 - **GET** `/tags/{tag_id}` - Get a specific tag by ID
 - **GET** `/tags/slug/{slug}` - Get a specific tag by slug
 - **POST** `/tags/` - Create a new tag (requires admin authentication)
@@ -74,6 +75,7 @@ docker compose down -v
 
 - **GET** `/comments/{comment_id}` - Get a specific comment by ID with replies
 - **GET** `/comments/post/{post_id}` - Get all top-level comments for a post with pagination (query params: `offset`, `limit`)
+- **GET** `/comments/post/{post_id}/all` - Get all top-level comments for a post without pagination
 - **POST** `/comments/` - Create a new comment (supports nested replies)
 - **POST** `/comments/{comment_id}/like` - Increment the like count for a comment
 - **POST** `/comments/{comment_id}/dislike` - Decrement the like count for a comment

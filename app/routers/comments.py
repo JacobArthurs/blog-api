@@ -23,11 +23,17 @@ def get_comment(comment_id: int, db: Session = Depends(get_db)):
 
 @router.get("/post/{post_id}", response_model=PaginatedResponse[CommentResponse])
 def get_comments_by_post(post_id: int, offset: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    """Get all comments for a specific post"""
+    """Get all comments for a specific post with pagination"""
     query = db.query(Comment).options(joinedload(Comment.replies)).filter(Comment.post_id == post_id, Comment.parent_id == None).order_by(Comment.like_count.desc(), Comment.created_at.desc())
     total = query.count()
     comments = query.offset(offset).limit(limit).all()
     return PaginatedResponse(items=comments, total=total, offset=offset, limit=limit)
+
+@router.get("/post/{post_id}/all", response_model=list[CommentResponse])
+def get_all_comments_by_post(post_id: int, db: Session = Depends(get_db)):
+    """Get all comments for a specific post without pagination"""
+    comments = db.query(Comment).options(joinedload(Comment.replies)).filter(Comment.post_id == post_id, Comment.parent_id == None).order_by(Comment.like_count.desc(), Comment.created_at.desc()).all()
+    return comments
 
 @router.post("/", response_model=CommentResponse, status_code=201)
 @limiter.limit("3/minute")

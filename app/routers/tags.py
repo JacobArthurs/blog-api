@@ -21,6 +21,12 @@ def get_tags(offset: int = 0, limit: int = 10, db: Session = Depends(get_db)):
     tags = query.offset(offset).limit(limit).all()
     return PaginatedResponse(items=tags, total=total, offset=offset, limit=limit)
 
+@router.get("/all", response_model=list[TagResponse])
+def get_all_tags(db: Session = Depends(get_db)):
+    """Get all tags without pagination"""
+    tags = db.query(Tag).order_by(Tag.name.desc()).all()
+    return tags
+
 @router.get("/{tag_id}", response_model=TagResponse)
 def get_tag(tag_id: int, db: Session = Depends(get_db)):
     """Get a tag by ID"""
