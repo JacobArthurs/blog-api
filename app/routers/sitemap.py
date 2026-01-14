@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 import xml.etree.ElementTree as ET
 from email.utils import format_datetime
-from datetime import datetime, timezone
+from datetime import timezone
 
 from ..db import get_db
 from ..models import Post, Tag

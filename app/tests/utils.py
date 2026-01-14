@@ -32,13 +32,12 @@ def create_mock_tag(id, name, slug, created_at=None, updated_at=None):
     mock_tag.updated_at = updated_at or datetime(2026, 1, 1)
     return mock_tag
 
-def create_mock_comment(id, post_id, author_name, author_email, content, parent_id=None, replies=None, like_count=0, created_at=None):
+def create_mock_comment(id, post_id, author_name, content, parent_id=None, replies=None, like_count=0, created_at=None):
     mock_comment = MagicMock()
     mock_comment.id = id
     mock_comment.post_id = post_id
     mock_comment.parent_id = parent_id
     mock_comment.author_name = author_name
-    mock_comment.author_email = author_email
     mock_comment.content = content
     mock_comment.like_count = like_count
     mock_comment.created_at = created_at or datetime(2026, 1, 1)

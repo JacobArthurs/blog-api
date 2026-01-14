@@ -58,7 +58,6 @@ def create_comment(request: Request, comment_data: CommentCreate, db: Session = 
         parent_id=comment_data.parent_id,
         depth=parent_comment.depth + 1 if comment_data.parent_id else 0,
         author_name=comment_data.author_name,
-        author_email=comment_data.author_email,
         content=comment_data.content
     )
 

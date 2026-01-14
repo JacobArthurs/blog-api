@@ -10,7 +10,6 @@ class Comment(Base):
     parent_id = Column(Integer, ForeignKey("comments.id", ondelete="CASCADE"), nullable=True)
     depth = Column(Integer, nullable=False, default=0)
     author_name = Column(String(100), nullable=False)
-    author_email = Column(String(255), nullable=False)
     content = Column(Text, nullable=False)
     like_count = Column(Integer, nullable=False, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
