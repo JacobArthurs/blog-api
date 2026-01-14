@@ -104,6 +104,7 @@ def test_create_post(mock_db, mock_auth):
     mock_db.refresh.side_effect = create_mock_refresh(
         id=1,
         view_count=0,
+        comment_count=0,
         created_at=datetime(2026, 1, 1),
         updated_at=datetime(2026, 1, 1)
     )
@@ -134,6 +135,7 @@ def test_create_post_with_custom_slug(mock_db, mock_auth, mocker):
     mock_db.refresh.side_effect = create_mock_refresh(
         id=1,
         view_count=0,
+        comment_count=0,
         created_at=datetime(2026, 1, 1),
         updated_at=datetime(2026, 1, 1)
     )
@@ -161,6 +163,7 @@ def test_create_post_with_tags(mock_db, mock_auth):
     mock_db.refresh.side_effect = create_mock_refresh(
         id=1,
         view_count=0,
+        comment_count=0,
         created_at=datetime(2026, 1, 1),
         updated_at=datetime(2026, 1, 1)
     )
