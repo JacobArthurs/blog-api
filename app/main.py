@@ -13,8 +13,7 @@ limiter = Limiter(key_func=get_remote_address)
 app = FastAPI(
     title="Blog API",
     description="A simple blog API with posts, tags, and comments",
-    version="1.0.0",
-    root_path="/blog-api"
+    version="1.0.0"
 )
 
 app.state.limiter = limiter

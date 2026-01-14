@@ -29,8 +29,8 @@ By default the compose file exposes:
 
 ### API Documentation
 
-- **Interactive Docs**: localhost:8000/blog-api/docs
-- **Alternative Docs**: localhost:8000/blog-api/redoc
+- **Interactive Docs**: localhost:8000/docs
+- **Alternative Docs**: localhost:8000/redoc
 
 ### Stopping the Server
 
