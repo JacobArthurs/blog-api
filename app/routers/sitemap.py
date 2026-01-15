@@ -99,4 +99,4 @@ def get_rss_feed(db: Session = Depends(get_db)):
         ET.SubElement(item, "pubDate").text = pub_date
 
     xml_bytes = ET.tostring(rss, encoding="UTF-8", method="xml", xml_declaration=True)
-    return Response(content=xml_bytes, media_type="application/rss+xml")
+    return Response(content=xml_bytes, media_type="application/xml")
