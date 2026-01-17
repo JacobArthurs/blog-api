@@ -76,9 +76,9 @@ docker compose down -v
 - **GET** `/comments/{comment_id}` - Get a specific comment by ID with replies
 - **GET** `/comments/post/{post_id}` - Get all top-level comments for a post with pagination (query params: `offset`, `limit`)
 - **GET** `/comments/post/{post_id}/all` - Get all top-level comments for a post without pagination
-- **POST** `/comments/` - Create a new comment (supports nested replies)
-- **POST** `/comments/{comment_id}/like` - Increment the like count for a comment
-- **POST** `/comments/{comment_id}/dislike` - Decrement the like count for a comment
+- **POST** `/comments/` - Create a new comment (supports nested replies, rate limited: 3/minute, 20/hour)
+- **POST** `/comments/{comment_id}/like` - Increment the like count for a comment (rate limited: 10/minute, 100/hour)
+- **POST** `/comments/{comment_id}/dislike` - Decrement the like count for a comment (rate limited: 10/minute, 100/hour)
 - **DELETE** `/comments/{comment_id}` - Delete a comment (requires admin authentication)
 
 ### Uploads
@@ -132,7 +132,7 @@ blog-api/
 │   ├── routers/         # API route handlers
 │   ├── schemas/         # Pydantic schemas
 │   ├── tests/           # Test suite
-│   └── utils/           # Utility functions (auth, slugify)
+│   └── utils/           # Utility functions
 ├── alembic/             # Database migrations
 ├── uploads/             # Uploaded files storage
 ├── main.py              # Application entry point
